@@ -1,0 +1,28 @@
+ Flow of a Request
+Example: Farmer adds a new crop
+Farmer sends POST /api/crops with crop data.
+crop.routes.js receives it → sends to crop.controller.addCrop.
+crop.controller.addCrop validates data → calls crop.model.save().
+crop.model.js interacts with DB → stores crop in Mongo/SQL.
+Response sent back: { message: "Crop added successfully" }.
+If farmer was not logged in → auth.middleware.js blocks request.
+If error occurs → error.middleware.js sends clean error JSON.
+so in short:
+server.js = main entry
+routes/ = defines endpoints
+controllers/ = request logic
+models/ = database
+middleware/ = security & error handling
+config/ = DB setup
+package.json & linters = project housekeeping
+Client (Frontend / API consumer) → Sends request (like add crop, login, get farmers).
+Server.js → Entry point. Sets up Express, loads middleware, connects DB, and mounts routes.
+Middleware → Runs before requests hit controllers. Handles authentication (auth.middleware.js) and common logic.
+Routes → Define the API endpoints (/crops, /farmers, /auth). Maps each HTTP request to a controller function.
+Controllers → Contain logic. They call models, process data, and return responses.
+Models → Define DB schema (Mongoose) and handle database queries.
+Database (MongoDB) → Stores persistent data (users, farmers, crops).
+Error Handler → Catches issues from anywhere (controller/middleware) and sends a proper error response back.
+Response → Client → The client gets back JSON with success/error.
+⚡ So the flow is always:
+👉 Client → Server.js → Middleware → Routes → Controllers → Models → Database → (response or error) → Client.
