@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
+
+// Import controller functions
 const cropController = require("../controllers/crop.controller");
 
 // Routes
-router.get("/", cropController.getCrops);
-router.post("/", cropController.addCrop);
+router.post("/add", cropController.addCrop);   // Add a crop
+router.get("/", cropController.getAllCrops);  // Get all crops
 
 module.exports = router;

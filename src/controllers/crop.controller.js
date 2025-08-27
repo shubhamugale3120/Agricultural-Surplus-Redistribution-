@@ -1,13 +1,25 @@
 // Crop controller handles crop-related logic
 
-exports.getCrops = (req, res) => {
-  res.json({ message: "List of crops will be returned here" });
+// Temporary in-memory crop list (no DB yet)
+let crops = [];
+
+// Add a new crop
+exports.addCrop = (req, res) => {
+  const { name, quantity } = req.body;
+  const newCrop = { id: Date.now(), name, quantity };
+  crops.push(newCrop);
+
+  res.status(201).json({
+    message: "✅ Crop added successfully!",
+    crop: newCrop,
+  });
 };
 
-exports.addCrop = (req, res) => {
-  const crop = req.body;
-  res.status(201).json({ message: "Crop added successfully", crop });
+// Get all crops
+exports.getAllCrops = (req, res) => {
+  res.json(crops);
 };
+
 
 
 // Controllers Layer

@@ -25,4 +25,4 @@ Database (MongoDB) → Stores persistent data (users, farmers, crops).
 Error Handler → Catches issues from anywhere (controller/middleware) and sends a proper error response back.
 Response → Client → The client gets back JSON with success/error.
 ⚡ So the flow is always:
-👉 Client → Server.js → Middleware → Routes → Controllers → Models → Database → (response or error) → Client.
+👉 Client → Server.js → Middleware → Routes → Controllers → Models → Database → (response or error) → Client

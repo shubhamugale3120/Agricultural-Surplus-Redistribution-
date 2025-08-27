@@ -1,3 +1,5 @@
+const authController = require("../controllers/auth.controller");
+
 // Routes Layer
 // 📂 src/routes/ → Handles URLs/endpoints.
 // Each file groups routes for a specific feature.

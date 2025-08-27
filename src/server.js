@@ -1,5 +1,6 @@
 const express = require("express");
 const cropRoutes = require("./routes/crop.routes");
+const farmerRoutes = require("./routes/farmer.routes");
 
 const app = express();
 const PORT = 3000;
@@ -8,6 +9,7 @@ app.use(express.json());
 
 // Mount routes
 app.use("/api/crops", cropRoutes);
+app.use("/api/farmers",farmerRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
