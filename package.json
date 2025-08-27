@@ -1,7 +1,6 @@
 {
   "name": "agricultural-surplus-redistribution-",
   "version": "1.0.0",
-  
   "main": "src/server.js",
   "type": "commonjs",
   "description": "",
@@ -9,7 +8,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "mysql2": "^3.14.3"
   },
   "scripts": {
     "start": "node src/server.js",

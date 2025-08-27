@@ -2,10 +2,12 @@ const express = require("express");
 const router = express.Router();
 const farmerController = require("../controllers/farmer.controller");
 
-// Register a farmer
-router.post("/register", farmerController.register);
+// ✅ This route will handle POST requests at /api/farmers/register
+// Example: POST http://localhost:3000/api/farmers/register
+router.post("/register", farmerController.registerFarmer);
 
-// Get all farmers
-router.get("/", farmerController.getAll);
+// ✅ This route will handle GET requests at /api/farmers
+// Example: GET http://localhost:3000/api/farmers
+router.get("/", farmerController.getFarmers);
 
 module.exports = router;
