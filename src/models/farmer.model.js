@@ -21,40 +21,21 @@
 //   return rows;
 // };
 
-const db = require("../config/db"); // import DB connection
+const db = require("../config/db");
 
 const Farmer = {
-  // ========================
-  // 📌 Insert new farmer
-  // ========================
-  createFarmer: (name, phone, location, email) => {
-    return new Promise((resolve, reject) => {
-      // SQL query to insert farmer into DB
-      const sql = "INSERT INTO Farmer (name, phone, location, email) VALUES (?, ?, ?, ?)";
+	createFarmer: async (name, phone, location, email) => {
+		const sql = "INSERT INTO Farmer (name, phone, location, email) VALUES (?, ?, ?, ?)";//Notes:
+    // Use ? placeholders to prevent SQL injection.
+		const params = [name, phone, location, email];
+		const [result] = await db.query(sql, params);
+		return { farmer_id: result.insertId, name, phone, location, email };
+	},
 
-      // Execute query
-      db.query(sql, [name, phone, location, email], (err, result) => {
-        if (err) {
-          reject(err); // ❌ reject if error
-        } else {
-          // ✅ return new farmer data with generated id
-          resolve({ farmer_id: result.insertId, name, phone, location, email });
-        }
-      });
-    });
-  },
-
-  // ========================
-  // 📌 Get all farmers
-  // ========================
-  getAllFarmers: () => {
-    return new Promise((resolve, reject) => {
-      db.query("SELECT * FROM Farmer", (err, rows) => {
-        if (err) reject(err); // ❌ reject if error
-        else resolve(rows);   // ✅ return rows
-      });
-    });
-  }
+	getAllFarmers: async () => {
+		const [rows] = await db.query("SELECT * FROM Farmer ORDER BY farmer_id DESC");
+		return rows;
+	}
 };
 
 module.exports = Farmer;

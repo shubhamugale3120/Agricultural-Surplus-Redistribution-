@@ -1,26 +1,59 @@
-// Crop controller handles crop-related logic
+const Crop = require("../models/crop.model");
 
-// Temporary in-memory crop list (no DB yet)
-let crops = [];
-
-// Add a new crop
-exports.addCrop = (req, res) => {
-  const { name, quantity } = req.body;
-  const newCrop = { id: Date.now(), name, quantity };
-  crops.push(newCrop);
-
-  res.status(201).json({
-    message: "✅ Crop added successfully!",
-    crop: newCrop,
-  });
+exports.addCrop = async (req, res, next) => {
+	try {
+		const { farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status } = req.body;
+		if (!farmer_id || !crop_name || !quantity || !unit) {
+			return res.status(400).json({ message: "farmer_id, crop_name, quantity, unit are required" });
+		}
+		const crop = await Crop.createCrop({ farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status });
+		return res.status(201).json({ message: "Crop added successfully", crop });
+	} catch (err) {
+		next(err);
+	}
 };
 
-// Get all crops
-exports.getAllCrops = (req, res) => {
-  res.json(crops);
+exports.getAllCrops = async (req, res, next) => {
+	try {
+		const crops = await Crop.listAll();
+		return res.json(crops);
+	} catch (err) {
+		next(err);
+	}
 };
 
+exports.getAvailableCrops = async (req, res, next) => {
+	try {
+		const crops = await Crop.listAvailable();
+		return res.json(crops);
+	} catch (err) {
+		next(err);
+	}
+};
 
+exports.updateCropStatus = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { status } = req.body;
+		if (!status) return res.status(400).json({ message: "status is required" });
+		const ok = await Crop.updateStatus(id, status);
+		if (!ok) return res.status(404).json({ message: "Crop not found" });
+		return res.json({ message: "Status updated" });
+	} catch (err) {
+		next(err);
+	}
+};
+
+// What changed:
+// Refactored to call the DB-backed model.
+// Input validation and error forwarding to middleware.
+// Added handlers for available crops and status updates.
+// Why:
+// Thin controllers: validate input → call model → return response.
+// Centralized error handling keeps controllers clean.
+
+// Always return on early responses to stop flow.
+// next(err) passes errors to error middleware.
 
 // Controllers Layer
 // 📂 src/controllers/ → Business logic / handling requests.
