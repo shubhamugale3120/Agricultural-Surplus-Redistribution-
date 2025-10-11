@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Buyer Dashboard — AgriSurplus</title>
+<title>NGO Dashboard — AgriSurplus</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body {
@@ -15,164 +15,73 @@
   .btn-primary:hover {
     background-color: #2e5a3d;
   }
-  .modal-bg {
-    background: rgba(44, 44, 44, 0.5);
-    position: fixed;
-    top:0; left:0; right:0; bottom:0;
-    display:flex; align-items:center; justify-content:center;
-    z-index:9999;
-  }
 </style>
 </head>
 <body>
 <header class="bg-[color:var(--brand,#1e3d2b)] text-white p-6">
   <div class="container mx-auto flex justify-between">
-    <h1 class="text-2xl font-bold">Buyer Dashboard</h1>
-    <a href="login.html" class="underline hover:text-gray-200">Logout</a>
+    <h1 class="text-2xl font-bold">NGO Dashboard</h1>
+    <div class="flex space-x-4">
+      <a href="profile.html" class="underline hover:text-gray-200">Profile</a>
+      <a href="orders.html" class="underline hover:text-gray-200">Orders</a>
+      <a href="#" onclick="logout()" class="underline hover:text-gray-200">Logout</a>
+    </div>
   </div>
 </header>
 
-<main class="container mx-auto p-6 space-y-12">
-  <!-- Surplus Crops Table -->
+<main class="container mx-auto p-6">
   <section class="bg-white rounded-xl shadow p-8 max-w-5xl mx-auto">
-    <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Available Surplus Produce</h2>
-    <input type="text" placeholder="Search crops..." id="searchInput"
-      class="w-full mb-4 rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[color:var(--brand,#1e3d2b)]" oninput="filterSurplus()"/>
-    <table class="w-full table-auto border-collapse border border-gray-300">
-      <thead>
-        <tr class="bg-[color:var(--brand-2,#2e5a3d)] text-white">
-          <th class="border px-4 py-2">Crop Name</th>
-          <th class="border px-4 py-2">Quantity (kg)</th>
-          <th class="border px-4 py-2">Expiry Date</th>
-          <th class="border px-4 py-2">Purpose</th>
-          <th class="border px-4 py-2 text-center">Order</th>
-        </tr>
-      </thead>
-      <tbody id="surplusTableBody"></tbody>
-    </table>
-  </section>
-
-  <!-- Order Modal -->
-  <div id="orderModal" class="modal-bg hidden">
-    <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md relative">
-      <button onclick="closeModal()" class="absolute top-2 right-3 text-black text-2xl">&times;</button>
-      <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Place an Order</h2>
-      <form id="orderForm" onsubmit="placeOrder(event)" class="space-y-4">
-        <input id="modalCropName" type="text" readonly class="w-full rounded-md border border-gray-300 px-4 py-2 bg-gray-100"/>
-        <input id="modalCropId" type="hidden" />
-        <input id="modalAvailableQty" type="hidden" />
-        <label>Quantity (kg):
-          <input type="number" id="orderQuantity" min="0.01" step="0.01" required
-            class="w-full rounded-md border border-gray-300 px-4 py-2" />
-        </label>
-        <label>Status:
-          <select id="orderStatus" required class="w-full rounded-md border border-gray-300 px-4 py-2">
-            <option value="Pending">Pending</option>
-            <option value="Confirmed">Confirmed</option>
-            <option value="Delivered">Delivered</option>
-          </select>
-        </label>
-        <button type="submit" class="btn-primary w-full py-3 rounded-xl text-white font-semibold hover:opacity-90 transition">Submit Order</button>
-      </form>
+    <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Available Surplus for Charity</h2>
+    <p class="text-gray-600 mb-6">Browse available surplus crops that can be distributed to those in need.</p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="font-semibold text-lg mb-2">Charity Crops</h3>
+        <p class="text-gray-600">View crops marked for charity distribution</p>
+        <button class="btn-primary px-4 py-2 rounded text-white mt-3">View Charity Crops</button>
+      </div>
+      
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="font-semibold text-lg mb-2">Request Surplus</h3>
+        <p class="text-gray-600">Request surplus crops for your organization</p>
+        <button class="btn-primary px-4 py-2 rounded text-white mt-3">Make Request</button>
+      </div>
+      
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="font-semibold text-lg mb-2">Distribution History</h3>
+        <p class="text-gray-600">Track your organization's distribution records</p>
+        <button class="btn-primary px-4 py-2 rounded text-white mt-3">View History</button>
+      </div>
     </div>
-  </div>
-  
-  <!-- Buyer's Orders Table -->
-  <section class="bg-white rounded-xl shadow p-8 max-w-5xl mx-auto">
-    <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Your Orders</h2>
-    <table class="w-full table-auto border-collapse border border-gray-300">
-      <thead>
-        <tr class="bg-[color:var(--brand-2,#2e5a3d)] text-white">
-          <th class="border px-4 py-2">Crop Name</th>
-          <th class="border px-4 py-2">Quantity</th>
-          <th class="border px-4 py-2">Status</th>
-        </tr>
-      </thead>
-      <tbody id="ordersTableBody"></tbody>
-    </table>
   </section>
 </main>
 
+<!-- Include API client -->
+<script src="js/api.js"></script>
+
 <script>
-  const surplusData = [
-    { cropId: 1, cropName: 'Tomato', quantity: 200, expiryDate: '2025-08-25', purpose: 'Commercial' },
-    { cropId: 2, cropName: 'Potato', quantity: 350, expiryDate: '2025-08-30', purpose: 'Charity' },
-    { cropId: 3, cropName: 'Onion', quantity: 100, expiryDate: '2025-09-01', purpose: 'Commercial' },
-    { cropId: 4, cropName: 'Carrot', quantity: 50, expiryDate: '2025-08-28', purpose: 'Charity' }
-  ];
-
-  let ordersData = [];
-
-  function renderSurplusTable(data = surplusData) {
-    const tbody = document.getElementById('surplusTableBody');
-    tbody.innerHTML = '';
-    data.forEach(item => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td class="border px-4 py-2">${item.cropName}</td>
-        <td class="border px-4 py-2">${item.quantity.toFixed(2)}</td>
-        <td class="border px-4 py-2">${item.expiryDate}</td>
-        <td class="border px-4 py-2">${item.purpose}</td>
-        <td class="border px-4 py-2 text-center">
-          <button class="btn-primary px-4 py-2 rounded text-white" onclick="openModal(${item.cropId}, '${item.cropName}', ${item.quantity})">Order</button>
-        </td>
-      `;
-      tbody.appendChild(row);
-    });
-  }
-
-  function filterSurplus() {
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = surplusData.filter(item => item.cropName.toLowerCase().includes(query));
-    renderSurplusTable(filtered);
-  }
-
-  function openModal(cropId, cropName, availableQty) {
-    document.getElementById('orderModal').classList.remove('hidden');
-    document.getElementById('modalCropName').value = cropName;
-    document.getElementById('modalCropId').value = cropId;
-    document.getElementById('modalAvailableQty').value = availableQty;
-    document.getElementById('orderQuantity').max = availableQty;
-    document.getElementById('orderQuantity').value = '';
-  }
-
-  function closeModal() {
-    document.getElementById('orderModal').classList.add('hidden');
-  }
-
-  function placeOrder(event) {
-    event.preventDefault();
-    const cropId = parseInt(document.getElementById('modalCropId').value);
-    const cropName = document.getElementById('modalCropName').value;
-    const quantity = parseFloat(document.getElementById('orderQuantity').value);
-    const status = document.getElementById('orderStatus').value;
-    const availableQty = parseFloat(document.getElementById('modalAvailableQty').value);
-    if (quantity > availableQty) {
-      alert('Quantity cannot exceed available quantity.');
+  // Check authentication
+  window.addEventListener('load', () => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      Utils.showError('Please login first.');
+      window.location.href = 'login.html';
       return;
     }
-    ordersData.push({ cropId, cropName, quantity, status });
-    closeModal();
-    renderOrdersTable();
-    alert('Order placed successfully!');
-  }
+    
+    const userData = JSON.parse(user);
+    if (userData.role !== 'NGO') {
+      Utils.showError('Access denied. This page is for NGOs only.');
+      window.location.href = 'login.html';
+      return;
+    }
+  });
 
-  function renderOrdersTable() {
-    const tbody = document.getElementById('ordersTableBody');
-    tbody.innerHTML = '';
-    ordersData.forEach(order => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td class="border px-4 py-2">${order.cropName}</td>
-        <td class="border px-4 py-2">${order.quantity.toFixed(2)}</td>
-        <td class="border px-4 py-2">${order.status}</td>
-      `;
-      tbody.appendChild(row);
-    });
+  // Logout function
+  function logout() {
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
   }
-
-  renderSurplusTable();
-  renderOrdersTable();
 </script>
 
 </body>

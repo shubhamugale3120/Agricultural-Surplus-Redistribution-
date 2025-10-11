@@ -69,8 +69,11 @@
     </p>
   </div>
 
+  <!-- Include API client -->
+  <script src="js/api.js"></script>
+  
   <script>
-    function handleRegister(event) {
+    async function handleRegister(event) {
       event.preventDefault();
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
@@ -80,13 +83,92 @@
       const password = document.getElementById('password').value.trim();
 
       if (!name || !email || !phone || !location || !role || !password) {
-        alert('Please fill in all fields.');
+        Utils.showError('Please fill in all fields.');
         return;
       }
-      // For now, just simulate registration success.
-      alert(`Registered successfully as ${role}! You can now login.`);
-      window.location.href = 'login.html';
+
+      if (!Utils.isValidEmail(email)) {
+        Utils.showError('Please enter a valid email address.');
+        return;
+      }
+
+      if (!Utils.isValidPhone(phone)) {
+        Utils.showError('Please enter a valid phone number.');
+        return;
+      }
+
+      if (password.length < 6) {
+        Utils.showError('Password must be at least 6 characters long.');
+        return;
+      }
+
+      try {
+        // Show loading state
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Registering...';
+        submitBtn.disabled = true;
+
+        // Prepare user data based on role
+        const userData = {
+          name,
+          email,
+          phone,
+          location,
+          password
+        };
+
+        // Call appropriate registration API based on role
+        let result;
+        switch (role) {
+          case 'Farmer':
+            result = await API.Farmer.register(userData);
+            break;
+          case 'Buyer':
+            result = await API.Buyer.create({ ...userData, buyer_type: 'Individual' });
+            break;
+          case 'NGO':
+            result = await API.NGO.create({ 
+              name, 
+              contact_person: name, 
+              phone, 
+              location, 
+              email 
+            });
+            break;
+          case 'Seller':
+            result = await API.Seller.register({ 
+              ...userData, 
+              vehicle_no: 'TBD', 
+              availability_status: 'Available' 
+            });
+            break;
+          default:
+            throw new Error('Invalid role selected');
+        }
+
+        Utils.showSuccess(`Registered successfully as ${role}! You can now login.`);
+        window.location.href = 'login.html';
+
+      } catch (error) {
+        Utils.showError(`Registration error: ${error.message}`);
+      } finally {
+        // Reset button state
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        submitBtn.textContent = 'Register';
+        submitBtn.disabled = false;
+      }
     }
+
+    // Check if user is already logged in
+    window.addEventListener('load', () => {
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        Utils.showSuccess(`Already logged in as ${userData.role}`);
+        window.location.href = userData.role.toLowerCase() + '-dashboard.html';
+      }
+    });
   </script>
 
 </body>

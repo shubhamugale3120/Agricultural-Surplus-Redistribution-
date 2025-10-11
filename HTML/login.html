@@ -54,22 +54,69 @@
     </p>
   </div>
 
+  <!-- Include API client -->
+  <script src="js/api.js"></script>
+  
   <script>
-    function handleLogin(event) {
+    async function handleLogin(event) {
       event.preventDefault();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
       const role = document.getElementById('role').value;
 
       if (!email || !password || !role) {
-        alert('Please fill in all fields.');
+        Utils.showError('Please fill in all fields.');
         return;
       }
-      // For now, just simulate login success.
-      alert(`Welcome ${role}! (Functionality coming soon)`);
-      // Redirect to role-based dashboard page (to be created)
-      window.location.href = role.toLowerCase() + '-dashboard.html';
+
+      if (!Utils.isValidEmail(email)) {
+        Utils.showError('Please enter a valid email address.');
+        return;
+      }
+
+      try {
+        // Show loading state
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Logging in...';
+        submitBtn.disabled = true;
+
+        // Call authentication API
+        const result = await API.Auth.login(email, password, role);
+        
+        if (result.success) {
+          // Store user data in localStorage for session management
+          localStorage.setItem('user', JSON.stringify({
+            email: email,
+            role: role,
+            token: result.token
+          }));
+          
+          Utils.showSuccess(`Welcome ${role}!`);
+          
+          // Redirect to role-based dashboard
+          window.location.href = role.toLowerCase() + '-dashboard.html';
+        } else {
+          Utils.showError('Login failed. Please check your credentials.');
+        }
+      } catch (error) {
+        Utils.showError(`Login error: ${error.message}`);
+      } finally {
+        // Reset button state
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
     }
+
+    // Check if user is already logged in
+    window.addEventListener('load', () => {
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        Utils.showSuccess(`Already logged in as ${userData.role}`);
+        window.location.href = userData.role.toLowerCase() + '-dashboard.html';
+      }
+    });
   </script>
 
 </body>

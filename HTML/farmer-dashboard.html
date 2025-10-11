@@ -22,7 +22,11 @@
 <header class="bg-[color:var(--brand,#1e3d2b)] text-white p-6">
   <div class="container mx-auto flex justify-between">
     <h1 class="text-2xl font-bold">Farmer Dashboard</h1>
-    <a href="login.html" class="underline hover:text-gray-200">Logout</a>
+    <div class="flex space-x-4">
+      <a href="profile.html" class="underline hover:text-gray-200">Profile</a>
+      <a href="orders.html" class="underline hover:text-gray-200">Orders</a>
+      <a href="#" onclick="logout()" class="underline hover:text-gray-200">Logout</a>
+    </div>
   </div>
 </header>
 
@@ -90,11 +94,54 @@
   </section>
 </main>
 
+  <!-- Include API client -->
+  <script src="js/api.js"></script>
+  
 <script>
-  // For demo, store surplus data in memory
-  const surplusData = [];
+  // Check authentication
+  window.addEventListener('load', () => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      Utils.showError('Please login first.');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    const userData = JSON.parse(user);
+    if (userData.role !== 'Farmer') {
+      Utils.showError('Access denied. This page is for farmers only.');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // Load farmer's crops on page load
+    loadFarmerCrops();
+  });
 
-  function submitSurplus(event) {
+  // Load farmer's crops from API
+  async function loadFarmerCrops() {
+    try {
+      Utils.showLoading('surplusTableBody');
+      
+      // For now, we'll get all crops since we don't have farmer-specific filtering yet
+      const crops = await API.Crop.getAll();
+      
+      // Filter crops for current farmer (in a real app, this would be done on backend)
+      const farmerCrops = crops.filter(crop => crop.farmer_id === getCurrentFarmerId());
+      
+      renderSurplusTable(farmerCrops);
+    } catch (error) {
+      Utils.showError(`Failed to load crops: ${error.message}`, 'surplusTableBody');
+    }
+  }
+
+  // Get current farmer ID (placeholder - in real app this would come from auth)
+  function getCurrentFarmerId() {
+    // For demo purposes, return 1. In real app, get from user session
+    return 1;
+  }
+
+  async function submitSurplus(event) {
     event.preventDefault();
     const cropName = document.getElementById('cropName').value.trim();
     const quantity = parseFloat(document.getElementById('quantity').value);
@@ -103,37 +150,94 @@
     const expiryDate = document.getElementById('expiryDate').value;
     const purpose = document.getElementById('purpose').value;
     const status = document.getElementById('status').value;
+    
     if (!cropName || !quantity || !unit || !harvestDate || !expiryDate || !purpose || !status) {
-      alert('Please fill all fields.');
+      Utils.showError('Please fill all fields.');
       return;
     }
-    surplusData.push({
-      cropName, quantity, unit, harvestDate, expiryDate, purpose, status
-    });
-    alert('Surplus uploaded successfully!');
-    event.target.reset();
-    renderSurplusTable();
+
+    if (quantity <= 0) {
+      Utils.showError('Quantity must be greater than 0.');
+      return;
+    }
+
+    if (new Date(expiryDate) <= new Date(harvestDate)) {
+      Utils.showError('Expiry date must be after harvest date.');
+      return;
+    }
+
+    try {
+      // Show loading state
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Uploading...';
+      submitBtn.disabled = true;
+
+      // Prepare crop data
+      const cropData = {
+        farmer_id: getCurrentFarmerId(),
+        crop_name: cropName,
+        quantity: quantity,
+        unit: unit,
+        harvest_date: harvestDate,
+        expiry_date: expiryDate,
+        status: status
+      };
+
+      // Call API to add crop
+      const result = await API.Crop.add(cropData);
+      
+      Utils.showSuccess('Surplus uploaded successfully!');
+      event.target.reset();
+      
+      // Reload the crops table
+      loadFarmerCrops();
+      
+    } catch (error) {
+      Utils.showError(`Failed to upload surplus: ${error.message}`);
+    } finally {
+      // Reset button state
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      submitBtn.textContent = 'Upload Surplus';
+      submitBtn.disabled = false;
+    }
   }
 
-  function renderSurplusTable() {
+  function renderSurplusTable(crops) {
     const tbody = document.getElementById('surplusTableBody');
     tbody.innerHTML = '';
-    surplusData.forEach(item => {
+    
+    if (crops.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-gray-500">No crops uploaded yet</td></tr>';
+      return;
+    }
+    
+    crops.forEach(crop => {
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td class="border border-gray-300 px-4 py-2">${item.cropName}</td>
-        <td class="border border-gray-300 px-4 py-2">${item.quantity.toFixed(2)}</td>
-        <td class="border border-gray-300 px-4 py-2">${item.unit}</td>
-        <td class="border border-gray-300 px-4 py-2">${item.harvestDate}</td>
-        <td class="border border-gray-300 px-4 py-2">${item.expiryDate}</td>
-        <td class="border border-gray-300 px-4 py-2">${item.purpose}</td>
-        <td class="border border-gray-300 px-4 py-2">${item.status}</td>
+        <td class="border border-gray-300 px-4 py-2">${crop.crop_name}</td>
+        <td class="border border-gray-300 px-4 py-2">${parseFloat(crop.quantity).toFixed(2)}</td>
+        <td class="border border-gray-300 px-4 py-2">${crop.unit}</td>
+        <td class="border border-gray-300 px-4 py-2">${Utils.formatDate(crop.harvest_date)}</td>
+        <td class="border border-gray-300 px-4 py-2">${Utils.formatDate(crop.expiry_date)}</td>
+        <td class="border border-gray-300 px-4 py-2">${crop.purpose || 'N/A'}</td>
+        <td class="border border-gray-300 px-4 py-2">
+          <span class="px-2 py-1 rounded text-xs ${
+            crop.status === 'Available' ? 'bg-green-100 text-green-800' :
+            crop.status === 'Matched' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-red-100 text-red-800'
+          }">${crop.status}</span>
+        </td>
       `;
       tbody.appendChild(row);
     });
   }
 
-  renderSurplusTable();
+  // Logout function
+  function logout() {
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+  }
 </script>
 </body>
 </html>
