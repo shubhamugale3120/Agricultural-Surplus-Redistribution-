@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login — AgriSurplus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
+    }
+    .btn-primary {
+      background-color: #1e3d2b;
+    }
+    .btn-primary:hover {
+      background-color: #2e5a3d;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+  <div class="w-full max-w-md bg-white rounded-2xl shadow p-8">
+    <h1 class="text-3xl font-extrabold text-[color:var(--brand, #1e3d2b)] mb-6 text-center">AgriSurplus Login</h1>
+
+    <form id="loginForm" class="space-y-5" onsubmit="handleLogin(event)">
+      <div>
+        <label for="email" class="block mb-1 font-semibold text-gray-700">Email</label>
+        <input id="email" type="email" required class="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[color:var(--brand, #1e3d2b)]" />
+      </div>
+
+      <div>
+        <label for="password" class="block mb-1 font-semibold text-gray-700">Password</label>
+        <input id="password" type="password" required class="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[color:var(--brand, #1e3d2b)]" />
+      </div>
+
+      <div>
+        <label for="role" class="block mb-1 font-semibold text-gray-700">Login as</label>
+        <select id="role" required class="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[color:var(--brand, #1e3d2b)]">
+          <option value="" disabled selected>Select role</option>
+          <option value="Farmer">Farmer</option>
+          <option value="Buyer">Buyer</option>
+          <option value="NGO">NGO</option>
+          <option value="Seller">Seller</option>
+        </select>
+      </div>
+
+      <button type="submit" class="w-full py-3 rounded-xl text-white font-semibold btn-primary hover:opacity-90 transition">Login</button>
+    </form>
+
+    <p class="mt-6 text-center text-gray-600 text-sm">
+      Don't have an account? <a href="register.html" class="text-[color:var(--brand, #1e3d2b)] font-semibold hover:underline">Register here</a>
+    </p>
+  </div>
+
+  <script>
+    function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const role = document.getElementById('role').value;
+
+      if (!email || !password || !role) {
+        alert('Please fill in all fields.');
+        return;
+      }
+      // For now, just simulate login success.
+      alert(`Welcome ${role}! (Functionality coming soon)`);
+      // Redirect to role-based dashboard page (to be created)
+      window.location.href = role.toLowerCase() + '-dashboard.html';
+    }
+  </script>
+
+</body>
+</html>

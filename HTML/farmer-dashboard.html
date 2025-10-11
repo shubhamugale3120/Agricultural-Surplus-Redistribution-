@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Farmer Dashboard — AgriSurplus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
+    }
+    .btn-primary {
+      background-color: #1e3d2b;
+    }
+    .btn-primary:hover {
+      background-color: #2e5a3d;
+    }
+  </style>
+</head>
+<body>
+<header class="bg-[color:var(--brand,#1e3d2b)] text-white p-6">
+  <div class="container mx-auto flex justify-between">
+    <h1 class="text-2xl font-bold">Farmer Dashboard</h1>
+    <a href="login.html" class="underline hover:text-gray-200">Logout</a>
+  </div>
+</header>
+
+<main class="container mx-auto p-6">
+  <section class="mb-12 max-w-lg mx-auto bg-white rounded-xl shadow p-8">
+    <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Upload Surplus Produce</h2>
+    <form id="uploadForm" class="space-y-5" onsubmit="submitSurplus(event)">
+      <!-- Farmer ID handled in backend/session -->
+      <input type="text" id="cropName" placeholder="Crop Name" required
+        class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[color:var(--brand,#1e3d2b)]" />
+      <input type="number" id="quantity" placeholder="Quantity" min="0.01" step="0.01" required
+        class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[color:var(--brand,#1e3d2b)]" />
+      <select id="unit" required
+        class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[color:var(--brand,#1e3d2b)]">
+        <option value="" disabled selected>Select Unit</option>
+        <option value="kg">kg</option>
+        <option value="quintal">quintal</option>
+      </select>
+      <label>
+        Harvest Date:
+        <input type="date" id="harvestDate" required
+          class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[color:var(--brand,#1e3d2b)]" />
+      </label>
+      <label>
+        Expiry Date:
+        <input type="date" id="expiryDate" required
+          class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[color:var(--brand,#1e3d2b)]" />
+      </label>
+      <select id="purpose" required
+        class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[color:var(--brand,#1e3d2b)]">
+        <option value="" disabled selected>Select Purpose</option>
+        <option value="Charity">Charity</option>
+        <option value="Commercial">Commercial</option>
+      </select>
+      <select id="status" required
+        class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[color:var(--brand,#1e3d2b)]">
+        <option value="Available">Available</option>
+        <option value="Matched">Matched</option>
+        <option value="Expired">Expired</option>
+      </select>
+      <button type="submit" class="btn-primary w-full py-3 rounded-xl text-white font-semibold hover:opacity-90 transition">
+        Upload Surplus
+      </button>
+    </form>
+  </section>
+
+  <section class="max-w-4xl mx-auto bg-white rounded-xl shadow p-6">
+    <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Your Uploaded Surplus</h2>
+    <table class="w-full table-auto border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-[color:var(--brand-2,#2e5a3d)] text-white">
+          <th class="border border-gray-300 px-4 py-2">Crop Name</th>
+          <th class="border border-gray-300 px-4 py-2">Quantity</th>
+          <th class="border border-gray-300 px-4 py-2">Unit</th>
+          <th class="border border-gray-300 px-4 py-2">Harvest Date</th>
+          <th class="border border-gray-300 px-4 py-2">Expiry Date</th>
+          <th class="border border-gray-300 px-4 py-2">Purpose</th>
+          <th class="border border-gray-300 px-4 py-2">Status</th>
+        </tr>
+      </thead>
+      <tbody id="surplusTableBody">
+        <!-- Rows will be dynamically added here -->
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+  // For demo, store surplus data in memory
+  const surplusData = [];
+
+  function submitSurplus(event) {
+    event.preventDefault();
+    const cropName = document.getElementById('cropName').value.trim();
+    const quantity = parseFloat(document.getElementById('quantity').value);
+    const unit = document.getElementById('unit').value;
+    const harvestDate = document.getElementById('harvestDate').value;
+    const expiryDate = document.getElementById('expiryDate').value;
+    const purpose = document.getElementById('purpose').value;
+    const status = document.getElementById('status').value;
+    if (!cropName || !quantity || !unit || !harvestDate || !expiryDate || !purpose || !status) {
+      alert('Please fill all fields.');
+      return;
+    }
+    surplusData.push({
+      cropName, quantity, unit, harvestDate, expiryDate, purpose, status
+    });
+    alert('Surplus uploaded successfully!');
+    event.target.reset();
+    renderSurplusTable();
+  }
+
+  function renderSurplusTable() {
+    const tbody = document.getElementById('surplusTableBody');
+    tbody.innerHTML = '';
+    surplusData.forEach(item => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="border border-gray-300 px-4 py-2">${item.cropName}</td>
+        <td class="border border-gray-300 px-4 py-2">${item.quantity.toFixed(2)}</td>
+        <td class="border border-gray-300 px-4 py-2">${item.unit}</td>
+        <td class="border border-gray-300 px-4 py-2">${item.harvestDate}</td>
+        <td class="border border-gray-300 px-4 py-2">${item.expiryDate}</td>
+        <td class="border border-gray-300 px-4 py-2">${item.purpose}</td>
+        <td class="border border-gray-300 px-4 py-2">${item.status}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  renderSurplusTable();
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seller Dashboard — AgriSurplus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
+    }
+    .btn-primary {
+      background-color: #1e3d2b;
+    }
+    .btn-primary:hover {
+      background-color: #2e5a3d;
+    }
+  </style>
+</head>
+<body>
+
+<header class="bg-[color:var(--brand,#1e3d2b)] text-white p-6">
+  <div class="container mx-auto flex justify-between">
+    <h1 class="text-2xl font-bold">Seller / Transport Dashboard</h1>
+    <a href="login.html" class="underline hover:text-gray-200">Logout</a>
+  </div>
+</header>
+
+<main class="container mx-auto p-6 max-w-6xl">
+  <h2 class="text-xl font-semibold mb-6 text-[color:var(--brand,#1e3d2b)]">Your Assigned Deliveries</h2>
+  <table class="w-full table-auto border-collapse border border-gray-300">
+    <thead>
+      <tr class="bg-[color:var(--brand-2,#2e5a3d)] text-white">
+        <th class="border border-gray-300 px-4 py-2">Crop</th>
+        <th class="border border-gray-300 px-4 py-2">Quantity (kg)</th>
+        <th class="border border-gray-300 px-4 py-2">Pickup Location</th>
+        <th class="border border-gray-300 px-4 py-2">Drop Location</th>
+        <th class="border border-gray-300 px-4 py-2">Buyer/NGO</th>
+        <th class="border border-gray-300 px-4 py-2">Status</th>
+        <th class="border border-gray-300 px-4 py-2">Update Status</th>
+      </tr>
+    </thead>
+    <tbody id="deliveriesTableBody">
+      <!-- Rows added dynamically -->
+    </tbody>
+  </table>
+</main>
+
+<script>
+  // Sample transport task data (replace with backend fetch)
+  const deliveries = [
+    {
+      id: 1,
+      crop: 'Tomato',
+      quantity: 100,
+      pickup: 'Farm A, Pune',
+      drop: 'NGO Mumbai',
+      buyer: 'Annapurna NGO',
+      status: 'Assigned'
+    },
+    {
+      id: 2,
+      crop: 'Potato',
+      quantity: 200,
+      pickup: 'Farm B, Nashik',
+      drop: 'Retail Market, Pune',
+      buyer: 'Sheth Traders',
+      status: 'In Transit'
+    }
+  ];
+
+  function renderDeliveries() {
+    const tbody = document.getElementById('deliveriesTableBody');
+    tbody.innerHTML = '';
+
+    deliveries.forEach(delivery => {
+      const row = document.createElement('tr');
+
+      row.innerHTML = `
+        <td class="border border-gray-300 px-4 py-2">${delivery.crop}</td>
+        <td class="border border-gray-300 px-4 py-2">${delivery.quantity.toFixed(2)}</td>
+        <td class="border border-gray-300 px-4 py-2">${delivery.pickup}</td>
+        <td class="border border-gray-300 px-4 py-2">${delivery.drop}</td>
+        <td class="border border-gray-300 px-4 py-2">${delivery.buyer}</td>
+        <td class="border border-gray-300 px-4 py-2">${delivery.status}</td>
+        <td class="border border-gray-300 px-4 py-2">
+          <select onchange="updateStatus(${delivery.id}, this.value)" class="rounded border border-gray-300 px-2 py-1">
+            <option value="Assigned" ${delivery.status === 'Assigned' ? 'selected' : ''}>Assigned</option>
+            <option value="In Transit" ${delivery.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+            <option value="Delivered" ${delivery.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+          </select>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  function updateStatus(id, newStatus) {
+    const delivery = deliveries.find(d => d.id === id);
+    if (delivery) {
+      delivery.status = newStatus;
+      alert(`Status updated to '${newStatus}' for delivery ID ${id}`);
+      renderDeliveries();
+    }
+  }
+
+  renderDeliveries();
+</script>
+
+</body>
+</html>

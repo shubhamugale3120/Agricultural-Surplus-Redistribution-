@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriSurplus — Redistribute Surplus, Reduce Waste</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- AOS Animate On Scroll -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <!-- Lottie for animated SVG -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.12/lottie.min.js"></script>
+
+  <style>
+    :root {
+      --brand: #1e3d2b;         /* Primary green */
+      --brand-2: #2e5a3d;       /* Secondary green */
+      --accent: #86cfa3;        /* Accent green */
+    }
+    html, body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+                   'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji',
+
+
+                   'Segoe UI Symbol', 'Noto Color Emoji';
+    }
+    .container {
+      max-width: 1200px;
+    }
+
+    /* Hero background slideshow */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      animation: slideshow 24s infinite ease-in-out;
+      opacity: 0.75;
+      z-index: 0;
+    }
+    @keyframes slideshow {
+      0%   { background-image: url('https://sc0.blr1.cdn.digitaloceanspaces.com/article/159143-fyoisazenw-1621239169.jpg'); }
+      15%  { background-image: url('https://savioursfoundation.org/wp-content/uploads/2021/01/ngo-1024x768.jpg'); }
+      30%  { background-image: url('https://hips.hearstapps.com/hmg-prod/images/vegetables-that-are-actually-fruit-66ccedf92ec3a.jpg'); }
+      50% { background-image: url('https://www.bayleafdigital.com/wp-content/uploads/2024/01/B-How-to-Get-Clients-in-the-Logistics-Business-600x336.jpg'); }
+    }
+
+    /* Animated count up */
+    .counter {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Image hover effect */
+    .img-hover-zoom {
+      transition: transform 0.5s cubic-bezier(.2,.88,.24,1);
+      will-change: transform;
+    }
+    .img-hover-zoom:hover {
+      transform: scale(1.05) rotate(-1deg);
+    }
+
+    /* Button hover with subtle scale */
+    .btn-hover-scale {
+      transition: transform 0.3s ease;
+    }
+    .btn-hover-scale:hover {
+      transform: scale(1.05);
+    }
+
+    /* Hamburger menu animated lines */
+    .menu-btn span {
+      display: block;
+      width: 24px;
+      height: 2.5px;
+      margin: 5px auto;
+      transition: all 0.3s ease-in-out;
+      background-color: var(--brand);
+      border-radius: 2px;
+    }
+    .menu-btn.open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+    .menu-btn.open span:nth-child(2) {
+      opacity: 0;
+    }
+    .menu-btn.open span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+  </style>
+</head>
+<body class="antialiased text-slate-800 bg-slate-50">
+
+   
+  <!-- Nav -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="container mx-auto px-4">
+      <div class="flex h-16 items-center justify-between">
+        <a href="#" class="inline-flex items-center gap-2 font-extrabold text-xl text-[color:var(--brand)]">
+          <span class="text-2xl">🌾</span> AgriSurplus
+        </a>
+        <nav class="hidden md:flex items-center gap-6 font-medium">
+  <a href="#home" class="hover:text-[color:var(--brand)]">Home</a>
+  <a href="#features" class="hover:text-[color:var(--brand)]">Features</a>
+  <a href="#workflow" class="hover:text-[color:var(--brand)]">How it works</a>
+  <a href="#projects" class="hover:text-[color:var(--brand)]">Projects</a>
+  <a href="#testimonials" class="hover:text-[color:var(--brand)]">Testimonials</a>
+  <a href="#contact" class="hover:text-[color:var(--brand)]">Contact</a>
+  <a href="login.html" class="hover:text-[color:var(--brand)] font-semibold">Login</a>
+  <a href="register.html" class="hover:text-[color:var(--brand)] font-semibold">Register</a>
+</nav>
+
+
+        <div class="hidden md:flex items-center gap-3">
+          <a href="#farmer" class="px-4 py-2 rounded-xl bg-[color:var(--brand)] text-white font-semibold hover:bg-[color:var(--brand-2)] transition btn-hover-scale">Get Started</a>
+        </div>
+        <!-- Mobile menu button -->
+        <button id="menuBtn" class="md:hidden menu-btn flex flex-col items-center justify-center w-10 h-10 rounded-lg border border-slate-300 text-slate-700" aria-label="Open menu" type="button">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <!-- Mobile menu -->
+      <div id="mobileMenu" class="md:hidden hidden pb-4">
+        <nav class="grid gap-2 font-medium">
+
+          <a href="#home" class="px-3 py-2 rounded-lg hover:bg-slate-100">Home</a>
+          <a href="#features" class="px-3 py-2 rounded-lg hover:bg-slate-100">Features</a>
+          <a href="#workflow" class="px-3 py-2 rounded-lg hover:bg-slate-100">How it works</a>
+          <a href="#projects" class="px-3 py-2 rounded-lg hover:bg-slate-100">Projects</a>
+          <a href="#testimonials" class="px-3 py-2 rounded-lg hover:bg-slate-100">Testimonials</a>
+          <a href="#contact" class="px-3 py-2 rounded-lg hover:bg-slate-100">Contact</a>
+          <a href="login.html" class="px-3 py-2 rounded-lg hover:bg-slate-100">Login</a>
+          <a href="register.html" class="px-3 py-2 rounded-lg hover:bg-slate-100">Register</a>
+          <a href="#farmer" class="px-3 py-2 rounded-lg bg-[color:var(--brand)] text-white text-center">Get Started</a>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section id="home" class="relative overflow-hidden min-h-[530px]">
+    <div class="hero-bg"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-white/0 z-10"></div>
+    <div class="relative container mx-auto px-4 py-28 z-20" data-aos="fade-up" data-aos-duration="1300">
+      <div class="max-w-3xl text-white drop-shadow-lg">
+        <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">Empower Farmers. <span class="text-[color:var(--accent)]">End Food Waste.</span></h1>
+        <p class="mt-4 text-lg md:text-xl text-slate-100">Connect surplus harvests to buyers & NGOs with smart logistics and transparent transactions.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#farmer" class="px-6 py-3 rounded-xl bg-[color:var(--accent)] text-slate-900 font-semibold hover:opacity-90 btn-hover-scale">Start as Farmer</a>
+          <a href="#features" class="px-6 py-3 rounded-xl border border-white/60 text-white font-semibold hover:bg-white/10 btn-hover-scale">Explore Features</a>
+          
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="container mx-auto px-4 -mt-10 md:-mt-12" aria-label="Statistics">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-white rounded-2xl shadow-sm p-5 text-center" data-aos="fade-up" data-aos-delay="100">
+        <div class="text-3xl font-extrabold text-[color:var(--brand)] counter" data-target="200">0</div>
+        <div class="text-slate-600">Projects Completed</div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm p-5 text-center" data-aos="fade-up" data-aos-delay="200">
+        <div class="text-3xl font-extrabold text-[color:var(--brand)] counter" data-target="150">0</div>
+        <div class="text-slate-600">Satisfied Customers</div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm p-5 text-center" data-aos="fade-up" data-aos-delay="300">
+        <div class="text-3xl font-extrabold text-[color:var(--brand)] counter" data-target="50">0</div>
+        <div class="text-slate-600">NGOs Partnered</div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm p-5 text-center" data-aos="fade-up" data-aos-delay="400">
+        <div class="text-3xl font-extrabold text-[color:var(--brand)] counter" data-target="25000">0</div>
+        <div class="text-slate-600">Food Saved (kg)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About / Split -->
+  <section id="about" class="container mx-auto px-4 py-20">
+    <div class="grid md:grid-cols-2 gap-10 items-center">
+      <img src="https://thumbs.dreamstime.com/b/small-plant-growing-soil-being-watered-bright-light-shining-green-leaves-concept-new-life-nature-378026885.jpg?w=768" alt="Farmers" class="w-full h-80 object-cover rounded-2xl shadow-sm img-hover-zoom" data-aos="zoom-in" />
+      <div data-aos="fade-left" data-aos-delay="200">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-[color:var(--brand)]">Sustainable redistribution made simple</h2>
+        <p class="mt-4 text-slate-600">We bridge farmers, buyers, NGOs, and transporters so surplus produce gets where it’s needed fast. Real-time availability, fair pricing, and efficient routing—on one platform.</p>
+        <div class="mt-6 grid sm:grid-cols-2 gap-4">
+          <div class="p-4 bg-white rounded-xl border border-slate-200 hover:shadow-md transition cursor-default" data-aos="fade-up" data-aos-delay="300">
+            <div class="font-semibold">Transparent Marketplace</div>
+            <p class="text-sm text-slate-600 mt-1">Live listings, simple verification, and secure transactions.</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl border border-slate-200 hover:shadow-md transition cursor-default" data-aos="fade-up" data-aos-delay="400">
+            <div class="font-semibold">Smart Logistics</div>
+            <p class="text-sm text-slate-600 mt-1">Optimized pickup & delivery with live tracking.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="bg-white">
+    <div class="container mx-auto px-4 py-16">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-center text-[color:var(--brand)]" data-aos="fade-up">Everything you need to reduce waste</h2>
+      <p class="mt-3 text-center text-slate-600 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">Upload surplus, match with NGOs/buyers, schedule logistics, and track impact—without friction.</p>
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-2xl border border-slate-200 p-6 hover:shadow-lg transition transform hover:scale-105 cursor-pointer" data-aos="flip-left" data-aos-delay="200">
+          <div class="w-10 h-10 rounded-lg bg-[color:var(--accent)]/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-[color:var(--brand)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7h18M3 12h18M3 17h18" />
+            </svg>
+          </div>
+          <h3 class="mt-4 font-semibold text-lg">Farmer Product Upload</h3>
+          <p class="text-slate-600 mt-1">List surplus by type, quantity, and freshness in seconds.</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 p-6 hover:shadow-lg transition transform hover:scale-105 cursor-pointer" data-aos="flip-left" data-aos-delay="300">
+          <div class="w-10 h-10 rounded-lg bg-[color:var(--accent)]/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-[color:var(--brand)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M9 12l2 2 4-4" />
+            </svg>
+          </div>
+          <h3 class="mt-4 font-semibold text-lg">NGO / Buyer Portal</h3>
+          <p class="text-slate-600 mt-1">Discover verified stocks with transparent pricing and provenance.</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 p-6 hover:shadow-lg transition transform hover:scale-105 cursor-pointer" data-aos="flip-left" data-aos-delay="400">
+          <div class="w-10 h-10 rounded-lg bg-[color:var(--accent)]/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-[color:var(--brand)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 13h18l-2 8H5l-2-8z" />
+              <path d="M16 13V7a4 4 0 00-8 0v6" />
+            </svg>
+          </div>
+          <h3 class="mt-4 font-semibold text-lg">Smart Logistics</h3>
+          <p class="text-slate-600 mt-1">Auto-matching with transporters and live ETA tracking.</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 p-6 hover:shadow-lg transition transform hover:scale-105 cursor-pointer" data-aos="flip-left" data-aos-delay="500">
+          <div class="w-10 h-10 rounded-lg bg-[color:var(--accent)]/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-[color:var(--brand)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20l9-5-9-5-9 5 9 5z" />
+              <path d="M12 12l9-5-9-5-9 5 9 5z" />
+            </svg>
+          </div>
+          <h3 class="mt-4 font-semibold text-lg">Impact & Analytics</h3>
+          <p class="text-slate-600 mt-1">Track food saved, CO₂ reduced, and partners reached.</p>
+        </div>
+      </div>
+      <div class="mt-10 flex justify-center" data-aos="fade-up" data-aos-delay="600">
+        <a id="farmer" href="#contact" class="px-6 py-3 rounded-xl bg-[color:var(--brand)] text-white font-semibold hover:bg-[color:var(--brand-2)] btn-hover-scale">Join the Network</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Workflow / Steps -->
+  <section id="workflow" class="container mx-auto px-4 py-16">
+    <h2 class="text-3xl md:text-4xl font-extrabold text-center text-[color:var(--brand)]" data-aos="fade-up">How AgriSurplus Works</h2>
+    <div class="mt-10 grid gap-6 md:grid-cols-4">
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center hover:shadow-lg transition cursor-default" data-aos="zoom-in" data-aos-delay="100">
+        <div class="text-sm font-semibold text-[color:var(--brand)]">Step 1</div>
+        <h3 class="mt-2 font-semibold">Upload Surplus</h3>
+        <p class="text-slate-600 text-sm mt-1">Farmers add harvest details & quantities.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center hover:shadow-lg transition cursor-default" data-aos="zoom-in" data-aos-delay="200">
+        <div class="text-sm font-semibold text-[color:var(--brand)]">Step 2</div>
+        <h3 class="mt-2 font-semibold">Connect</h3>
+        <p class="text-slate-600 text-sm mt-1">Buyers/NGOs request and verify stock.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center hover:shadow-lg transition cursor-default" data-aos="zoom-in" data-aos-delay="300">
+        <div class="text-sm font-semibold text-[color:var(--brand)]">Step 3</div>
+        <h3 class="mt-2 font-semibold">Match Logistics</h3>
+        <p class="text-slate-600 text-sm mt-1">Transporters scheduled with live status.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center hover:shadow-lg transition cursor-default" data-aos="zoom-in" data-aos-delay="400">
+        <div class="text-sm font-semibold text-[color:var(--brand)]">Step 4</div>
+        <h3 class="mt-2 font-semibold">Redistribute & Impact</h3>
+        <p class="text-slate-600 text-sm mt-1">Food delivered, impact recorded.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects" class="bg-slate-100/60">
+    <div class="container mx-auto px-4 py-16">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-center text-[color:var(--brand)]" data-aos="fade-up">Recent Projects</h2>
+      <div class="mt-10 grid gap-6 md:grid-cols-3">
+        <article class="bg-white rounded-2xl overflow-hidden border border-slate-200 img-hover-zoom cursor-pointer" data-aos="flip-left" data-aos-delay="100">
+          <img class="h-44 w-full object-cover" src="https://media.istockphoto.com/id/869262278/photo/everyday-should-be-earth-day.jpg?s=612x612&w=0&k=20&c=DDHGzEpAsCIk0al-vzXs-cZ0DVwqwkBMfudKuBppm0E=" alt="Green Plants" />
+          <div class="p-5">
+            <div class="text-xs font-semibold text-[color:var(--brand)] uppercase tracking-wide">Healthy</div>
+            <h3 class="mt-1 font-semibold text-lg">Green Plants</h3>
+          </div>
+        </article>
+        <article class="bg-white rounded-2xl overflow-hidden border border-slate-200 img-hover-zoom cursor-pointer" data-aos="flip-left" data-aos-delay="200">
+          <img class="h-44 w-full object-cover" src="https://thumbs.dreamstime.com/b/small-healthy-tobacco-shoot-bright-green-leaves-emerges-dark-soil-illuminated-gentle-natural-light-fairly-sky-389145578.jpg?w=768" alt="Farm Fields" />
+          <div class="p-5">
+            <div class="text-xs font-semibold text-[color:var(--brand)] uppercase tracking-wide">Farming</div>
+            <h3 class="mt-1 font-semibold text-lg">Farm Fields</h3>
+          </div>
+        </article>
+        <article class="bg-white rounded-2xl overflow-hidden border border-slate-200 img-hover-zoom cursor-pointer" data-aos="flip-left" data-aos-delay="300">
+          <img class="h-44 w-full object-cover" src="https://www.marthastewart.com/thmb/v1UtAZG51hP6cm_q-Dn4iCiIGFw=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/should-you-refrigerate-basil-getty-0723-586295677f3b44c2805c52fb72a6b8c8.jpg" alt="Fresh Green Leaves" />
+          <div class="p-5">
+            <div class="text-xs font-semibold text-[color:var(--brand)] uppercase tracking-wide">Organic</div>
+            <h3 class="mt-1 font-semibold text-lg">Fresh Leaves</h3>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials" class="container mx-auto px-4 py-16">
+    <h2 class="text-3xl md:text-4xl font-extrabold text-center text-[color:var(--brand)]" data-aos="fade-up">What Our Community Says</h2>
+    <div class="mt-10 grid gap-6 md:grid-cols-3">
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center" data-aos="fade-up" data-aos-delay="100">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQxSmjFzGYKZuEgu1q-UAXXOxqlZFuKBrbKQ&s" alt="Jitendra Singh" class="w-14 h-14 rounded-full mx-auto shadow img-hover-zoom" />
+        <div class="mt-3 font-semibold">Jitendra Singh — Farmer</div>
+        <p class="text-slate-600 mt-2 italic">“Uploading surplus was easy and I could connect instantly with local NGOs.”</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center" data-aos="fade-up" data-aos-delay="200">
+        <img src="https://randomuser.me/api/portraits/women/5.jpg" alt="Sunita Verma" class="w-14 h-14 rounded-full mx-auto shadow img-hover-zoom" />
+        <div class="mt-3 font-semibold">Sunita Verma — NGO</div>
+        <p class="text-slate-600 mt-2 italic">“We partnered with 20+ farms. The dashboard makes tracking super smooth!”</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center" data-aos="fade-up" data-aos-delay="300">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Rakesh Patel" class="w-14 h-14 rounded-full mx-auto shadow img-hover-zoom" />
+        <div class="mt-3 font-semibold">Rakesh Patel — Transporter</div>
+        <p class="text-slate-600 mt-2 italic">“Instant routes and easy trip management. Impactful and rewarding!”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="bg-white">
+    <div class="container mx-auto px-4 py-16">
+      <div class="grid md:grid-cols-2 gap-10">
+        <div data-aos="fade-right" data-aos-delay="100">
+          <h2 class="text-3xl md:text-4xl font-extrabold text-[color:var(--brand)]">Get in touch</h2>
+          <p class="mt-3 text-slate-600">Partner with us or ask anything—our team replies within 24 hours.</p>
+          <div class="mt-6 space-y-3 text-slate-700">
+            <div>📞 +1 (800) 234-567</div>
+            <div>✉️ support@agrisurplus.com</div>
+            <div>📍 80 Brooklyn Golden Street, USA</div>
+          </div>
+        </div>
+        <form class="bg-slate-50 rounded-2xl p-6 border border-slate-200" data-aos="fade-left" data-aos-delay="200">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Name</label>
+              <input type="text" class="mt-1 w-full rounded-lg border-slate-300 focus:border-[color:var(--brand)] focus:ring-[color:var(--brand)]" placeholder="Your name" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Email</label>
+              <input type="email" class="mt-1 w-full rounded-lg border-slate-300 focus:border-[color:var(--brand)] focus:ring-[color:var(--brand)]" placeholder="you@example.com" />
+            </div>
+          </div>
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-slate-700">Message</label>
+            <textarea rows="4" class="mt-1 w-full rounded-lg border-slate-300 focus:border-[color:var(--brand)] focus:ring-[color:var(--brand)]" placeholder="Tell us how we can help"></textarea>
+          </div>
+          <button type="submit" class="mt-5 w-full sm:w-auto px-6 py-3 rounded-xl bg-[color:var(--brand)] text-white font-semibold hover:bg-[color:var(--brand-2)] btn-hover-scale">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-[color:var(--brand)] text-white">
+    <div class="container mx-auto px-4 py-10 grid md:grid-cols-3 gap-8">
+      <div>
+        <div class="font-extrabold text-xl flex items-center gap-2">🌾 AgriSurplus</div>
+        <p class="mt-3 text-white/80">Making agriculture sustainable. Connecting farmers, buyers, NGOs & logistics for a healthier community.</p>
+      </div>
+      <nav>
+        <h4 class="font-semibold">Explore</h4>
+        <ul class="mt-3 space-y-2 text-white/90">
+          <li><a href="#about" class="hover:underline">About</a></li>
+          <li><a href="#features" class="hover:underline">Features</a></li>
+          <li><a href="#projects" class="hover:underline">Projects</a></li>
+          <li><a href="#contact" class="hover:underline">Contact</a></li>
+        </ul>
+      </nav>
+      <div>
+        <h4 class="font-semibold">Newsletter</h4>
+        <form class="mt-3 flex gap-2">
+          <input type="email" class="flex-1 rounded-lg border-0 px-3 py-2 text-slate-900" placeholder="Email address" />
+          <button class="px-4 py-2 rounded-lg bg-white text-[color:var(--brand)] font-semibold btn-hover-scale">Subscribe</button>
+        </form>
+      </div>
+    </div>
+    <div class="border-t border-white/20">
+      <div class="container mx-auto px-4 py-6 text-sm text-white/80 flex flex-col sm:flex-row items-center justify-between">
+        <p>© 2025 AgriSurplus. All rights reserved.</p>
+        <div class="mt-2 sm:mt-0 flex items-center gap-4">
+          <a href="#" class="hover:underline">Privacy</a>
+          <a href="#" class="hover:underline">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle + animation of hamburger icon
+    const btn = document.getElementById('menuBtn');
+    const menu = document.getElementById('mobileMenu');
+    btn?.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+      btn.classList.toggle('open');
+    });
+
+    // Initialize AOS animations
+    AOS.init({ once: true, duration: 900 });
+
+    // Count up animation on scroll into view
+    const counters = document.querySelectorAll('.counter');
+    const options = { threshold: 1.0 };
+    let counted = false;
+
+    function countUp(el, target) {
+      let count = 0;
+      let increment = target / 60;
+      let interval = setInterval(() => {
+        count += increment;
+        if (count >= target) {
+          el.innerText = target.toLocaleString();
+          clearInterval(interval);
+        } else {
+          el.innerText = Math.floor(count).toLocaleString();
+        }
+      }, 15);
+    }
+
+    const observer = new IntersectionObserver(function(entries) {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !counted) {
+          counters.forEach(counter => countUp(counter, +counter.getAttribute('data-target')));
+          counted = true; // Animate only once
+        }
+      });
+    }, options);
+
+    if (counters.length > 0) observer.observe(counters[0]);
+
+
+    
+
+  </script>
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
