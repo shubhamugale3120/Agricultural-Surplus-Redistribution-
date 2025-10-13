@@ -428,3 +428,4 @@ window.Utils = {
 console.log('🚀 Agricultural Surplus Redistribution API Client loaded successfully!');
 console.log('📚 Available APIs:', Object.keys(window.API));
 
+

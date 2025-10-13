@@ -248,3 +248,4 @@ SELECT COUNT(*) as orders_count FROM orders;
 SELECT COUNT(*) as transactions_count FROM transactions;
 SELECT COUNT(*) as logistics_count FROM logistics;
 
+
