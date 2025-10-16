@@ -139,8 +139,8 @@
   // Load buyer's orders from API
   async function loadBuyerOrders() {
     try {
-      // For now, we'll use mock data since we don't have buyer-specific order filtering yet
-      ordersData = [];
+      const buyerId = getCurrentBuyerId();
+      ordersData = await API.Order.getByBuyer(buyerId);
       renderOrdersTable();
     } catch (error) {
       Utils.showError(`Failed to load orders: ${error.message}`, 'ordersTableBody');
@@ -255,8 +255,8 @@
     ordersData.forEach(order => {
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td class="border px-4 py-2">${order.cropName}</td>
-        <td class="border px-4 py-2">${order.quantity.toFixed(2)}</td>
+        <td class="border px-4 py-2">${order.crop_name}</td>
+        <td class="border px-4 py-2">${parseFloat(order.quantity).toFixed(2)}</td>
         <td class="border px-4 py-2">
           <span class="px-2 py-1 rounded text-xs ${
             order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :

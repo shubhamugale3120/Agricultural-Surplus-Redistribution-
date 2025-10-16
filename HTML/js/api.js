@@ -223,6 +223,11 @@ const OrderAPI = {
       method: 'PUT',
       body: JSON.stringify({ status })
     });
+  },
+
+  // Get orders by buyer
+  getByBuyer: async (buyerId) => {
+    return apiRequest(`/orders/buyer/${buyerId}`);
   }
 };
 
@@ -427,5 +432,4 @@ window.Utils = {
 
 console.log('🚀 Agricultural Surplus Redistribution API Client loaded successfully!');
 console.log('📚 Available APIs:', Object.keys(window.API));
-
 
