@@ -34,25 +34,17 @@
     <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Delivery Management</h2>
     <p class="text-gray-600 mb-6">Manage your delivery assignments and track logistics.</p>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <h3 class="font-semibold text-lg mb-2">Active Deliveries</h3>
-        <p class="text-gray-600">View and manage your current delivery assignments</p>
-        <button class="btn-primary px-4 py-2 rounded text-white mt-3">View Deliveries</button>
-      </div>
-      
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <h3 class="font-semibold text-lg mb-2">Update Status</h3>
-        <p class="text-gray-600">Update delivery status and tracking information</p>
-        <button class="btn-primary px-4 py-2 rounded text-white mt-3">Update Status</button>
-      </div>
-      
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <h3 class="font-semibold text-lg mb-2">Delivery History</h3>
-        <p class="text-gray-600">View your completed delivery records</p>
-        <button class="btn-primary px-4 py-2 rounded text-white mt-3">View History</button>
-      </div>
-    </div>
+    <table class="w-full table-auto border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-[color:var(--brand-2,#2e5a3d)] text-white">
+          <th class="border px-4 py-2">Transaction</th>
+          <th class="border px-4 py-2">Crop</th>
+          <th class="border px-4 py-2">Status</th>
+          <th class="border px-4 py-2">Action</th>
+        </tr>
+      </thead>
+      <tbody id="sellerDeliveriesBody"></tbody>
+    </table>
   </section>
 </main>
 
@@ -75,7 +67,43 @@
       window.location.href = 'login.html';
       return;
     }
+    loadDeliveries();
   });
+
+  async function loadDeliveries() {
+    try {
+      const deliveries = await API.Logistics.getBySeller(1);
+      const tbody = document.getElementById('sellerDeliveriesBody');
+      tbody.innerHTML = '';
+      if (!deliveries || deliveries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">No deliveries</td></tr>';
+        return;
+      }
+      deliveries.forEach(d => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border px-4 py-2">#${d.transaction_id}</td>
+          <td class="border px-4 py-2">${d.crop_name || ''}</td>
+          <td class="border px-4 py-2">${d.status}</td>
+          <td class="border px-4 py-2">
+            <button class="btn-primary px-3 py-1 rounded text-white" onclick="updateDelivery(${d.logistics_id}, 'delivered')">Mark Completed</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      Utils.showError(e.message);
+    }
+  }
+
+  async function updateDelivery(id, status) {
+    try {
+      await API.Logistics.updateStatus(id, status);
+      Utils.showSuccess('Updated');
+      // Auto-refresh table after update
+      await loadDeliveries();
+    } catch (e) { Utils.showError(e.message); }
+  }
 
   // Logout function
   function logout() {

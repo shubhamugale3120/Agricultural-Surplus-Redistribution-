@@ -2,11 +2,11 @@ const Crop = require("../models/crop.model");
 
 exports.addCrop = async (req, res, next) => {
 	try {
-		const { farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status } = req.body;
+		const { farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status, purpose } = req.body;
 		if (!farmer_id || !crop_name || !quantity || !unit) {
 			return res.status(400).json({ message: "farmer_id, crop_name, quantity, unit are required" });
 		}
-		const crop = await Crop.createCrop({ farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status });
+		const crop = await Crop.createCrop({ farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status, purpose });
 		return res.status(201).json({ message: "Crop added successfully", crop });
 	} catch (err) {
 		next(err);

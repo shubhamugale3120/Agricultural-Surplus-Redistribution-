@@ -19,7 +19,7 @@ module.exports = {
 			pickup_location,
 			drop_location,
 			delivery_date || null, // Can be null if date not set yet
-			status || 'assigned'    // Default status when created
+            status || 'pending'     // Default status when created
 		];
 		
 		// Execute query and get result
@@ -32,7 +32,7 @@ module.exports = {
 			pickup_location,
 			drop_location,
 			delivery_date: delivery_date || null,
-			status: status || 'assigned'
+            status: status || 'pending'
 		};
 	},
 
@@ -109,10 +109,10 @@ module.exports = {
 	// Update logistics status
 	updateStatus: async (id, status) => {
 		// Update the delivery status
-		const [result] = await db.query(
-			"UPDATE Logistics SET status = ? WHERE logistics_id = ?",
-			[status, id]
-		);
+        const [result] = await db.query(
+            "UPDATE Logistics SET status = ? WHERE logistics_id = ?",
+            [status, id]
+        );
 		return result.affectedRows > 0;
 	},
 

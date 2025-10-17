@@ -257,7 +257,7 @@ const TransactionAPI = {
   updateDeliveryStatus: async (transactionId, status) => {
     return apiRequest(`/transactions/${transactionId}/delivery-status`, {
       method: 'PUT',
-      body: JSON.stringify({ delivery_status: status })
+      body: JSON.stringify({ status })
     });
   },
 

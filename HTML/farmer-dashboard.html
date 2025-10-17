@@ -92,6 +92,23 @@
       </tbody>
     </table>
   </section>
+
+  <section class="max-w-4xl mx-auto bg-white rounded-xl shadow p-6 mt-8">
+    <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Charity Requests from NGOs</h2>
+    <p class="text-gray-600 mb-4">Approve NGO requests for your charity-marked crops.</p>
+    <table class="w-full table-auto border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-[color:var(--brand-2,#2e5a3d)] text-white">
+          <th class="border border-gray-300 px-4 py-2">Crop</th>
+          <th class="border border-gray-300 px-4 py-2">NGO</th>
+          <th class="border border-gray-300 px-4 py-2">Type</th>
+          <th class="border border-gray-300 px-4 py-2">Delivery Status</th>
+          <th class="border border-gray-300 px-4 py-2">Action</th>
+        </tr>
+      </thead>
+      <tbody id="farmerCharityTableBody"></tbody>
+    </table>
+  </section>
 </main>
 
   <!-- Include API client -->
@@ -181,6 +198,7 @@
         unit: unit,
         harvest_date: harvestDate,
         expiry_date: expiryDate,
+        purpose: purpose,
         status: status
       };
 
@@ -231,6 +249,48 @@
       `;
       tbody.appendChild(row);
     });
+  }
+
+  // Load pending charity requests (transactions with type charity for this farmer and pending delivery)
+  window.addEventListener('load', loadFarmerCharityRequests);
+
+  async function loadFarmerCharityRequests() {
+    try {
+      const all = await API.Transaction.getByType('charity');
+      const mine = all.filter(t => t.farmer_id === getCurrentFarmerId());
+      const tbody = document.getElementById('farmerCharityTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (mine.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No charity requests yet</td></tr>';
+        return;
+      }
+      mine.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border border-gray-300 px-4 py-2">${t.crop_name || ''}</td>
+          <td class="border border-gray-300 px-4 py-2">${t.ngo_name || 'NGO #' + t.ngo_id}</td>
+          <td class="border border-gray-300 px-4 py-2">${t.transaction_type}</td>
+          <td class="border border-gray-300 px-4 py-2">${t.delivery_status}</td>
+          <td class="border border-gray-300 px-4 py-2 text-center">
+            <button class="btn-primary px-3 py-2 rounded text-white" onclick="acceptCharity(${t.transaction_id})">Accept</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      // Silent fail on initial load
+    }
+  }
+
+  async function acceptCharity(transactionId) {
+    try {
+      await API.Transaction.updateDeliveryStatus(transactionId, 'in-transit');
+      Utils.showSuccess('Charity request accepted');
+      loadFarmerCharityRequests();
+    } catch (e) {
+      Utils.showError(e.message);
+    }
   }
 
   // Logout function

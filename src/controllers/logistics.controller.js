@@ -1,4 +1,5 @@
 const Logistics = require("../models/logistics.model");
+const Transaction = require("../models/transaction.model");
 
 // Logistics controller: handles delivery tracking and logistics management
 // This controller manages the physical delivery process from pickup to drop
@@ -16,10 +17,10 @@ exports.create = async (req, res, next) => {
 			});
 		}
 		
-		// Validate status if provided
-		if (status && !['assigned', 'in-progress', 'completed'].includes(status)) {
+        // Validate status if provided (project enum: 'pending' | 'in-transit' | 'delivered')
+        if (status && !['pending', 'in-transit', 'delivered'].includes(String(status).toLowerCase())) {
 			return res.status(400).json({ 
-				message: "Status must be 'assigned', 'in-progress', or 'completed'" 
+                message: "Status must be 'pending', 'in-transit', or 'delivered'" 
 			});
 		}
 		
@@ -109,26 +110,41 @@ exports.list = async (req, res, next) => {
 };
 
 // Update logistics status (used by delivery team)
+function normalizeLogisticsStatus(input) {
+    // Normalize to project enum values: 'pending' | 'in-transit' | 'delivered'
+    if (!input) return "pending";
+    const s = String(input).toLowerCase();
+    if (s === "pending" || s === "assigned") return "pending";
+    if (s === "in-transit" || s === "in transit" || s === "in-progress" || s === "in progress") return "in-transit";
+    if (s === "delivered" || s === "completed") return "delivered";
+    return "pending";
+}
+
 exports.updateStatus = async (req, res, next) => {
 	try {
 		const { id } = req.params;
-		const { status } = req.body;
-		
-		// Validate status
-		if (!status || !['assigned', 'in-progress', 'completed'].includes(status)) {
-			return res.status(400).json({ 
-				message: "Valid status required: 'assigned', 'in-progress', or 'completed'" 
-			});
-		}
-		
-		// Update status in database
-		const updated = await Logistics.updateStatus(id, status);
+        const { status } = req.body;
+
+        const normalized = normalizeLogisticsStatus(status);
+
+        // Update status in database (project enum)
+        const updated = await Logistics.updateStatus(id, normalized);
 		
 		if (!updated) {
 			return res.status(404).json({ message: "Logistics record not found" });
 		}
-		
-		return res.json({ message: "Logistics status updated successfully" });
+
+        // If logistics completed, also mark the linked transaction as delivered
+        if (normalized === "delivered") {
+            try {
+                const details = await Logistics.getById(id);
+                if (details && details.transaction_id) {
+                    await Transaction.updateDeliveryStatus(details.transaction_id, 'delivered');
+                }
+            } catch (_) { /* best-effort; ignore */ }
+        }
+
+        return res.json({ message: "Logistics status updated successfully", status: normalized });
 		
 	} catch (err) { 
 		next(err); 
