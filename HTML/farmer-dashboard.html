@@ -133,6 +133,14 @@
     
     // Load farmer's crops on page load
     loadFarmerCrops();
+    // Subscribe to realtime events to auto-refresh
+    Realtime.connect((evt) => {
+      if (!evt || !evt.type) return;
+      if (evt.type.startsWith('crop.') || evt.type.startsWith('transaction.') || evt.type.startsWith('logistics.')) {
+        loadFarmerCrops();
+        loadFarmerCharityRequests();
+      }
+    });
   });
 
   // Load farmer's crops from API

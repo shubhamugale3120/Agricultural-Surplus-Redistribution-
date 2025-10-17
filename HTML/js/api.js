@@ -385,6 +385,18 @@ window.API = {
   Health: HealthAPI
 };
 
+// SSE client helper for real-time updates
+window.Realtime = {
+  connect: (onEvent) => {
+    const source = new EventSource(`${API_BASE_URL.replace('/api','')}/api/events`);
+    source.onmessage = (e) => {
+      try { const evt = JSON.parse(e.data); onEvent && onEvent(evt); } catch (_) {}
+    };
+    source.onerror = () => { /* auto-reconnect handled by browser */ };
+    return source;
+  }
+};
+
 // Utility functions for common operations
 window.Utils = {
   // Show loading spinner

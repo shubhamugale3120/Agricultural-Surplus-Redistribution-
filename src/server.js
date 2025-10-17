@@ -12,6 +12,7 @@ const sellerRoutes = require("./routes/seller.routes");
 const orderRoutes = require("./routes/order.routes");
 const transactionRoutes = require("./routes/transaction.routes");
 const logisticsRoutes = require("./routes/logistics.routes");
+const eventsRoutes = require("./routes/events.routes");
 const errorHandler = require("./middleware/error.middleware");
 
 // Create Express application instance
@@ -106,6 +107,8 @@ app.use("/api/transactions", transactionRoutes);
 // Logistics: manage delivery tracking and logistics
 // Endpoints: POST /api/logistics, GET /api/logistics, PUT /api/logistics/:id/status
 app.use("/api/logistics", logisticsRoutes);
+// Real-time SSE stream
+app.use("/api/events", eventsRoutes);
 
 // ========================
 // ERROR HANDLING

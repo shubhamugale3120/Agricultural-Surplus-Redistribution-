@@ -1,5 +1,6 @@
 const Logistics = require("../models/logistics.model");
 const Transaction = require("../models/transaction.model");
+const { emitEvent } = require("../utils/eventBus");
 
 // Logistics controller: handles delivery tracking and logistics management
 // This controller manages the physical delivery process from pickup to drop
@@ -33,7 +34,8 @@ exports.create = async (req, res, next) => {
 			status
 		});
 		
-		// Return success response
+        // Emit event and return success response
+        emitEvent("logistics.created", logistics);
 		return res.status(201).json({ 
 			message: "Logistics record created successfully", 
 			logistics 
@@ -134,12 +136,15 @@ exports.updateStatus = async (req, res, next) => {
 			return res.status(404).json({ message: "Logistics record not found" });
 		}
 
+        emitEvent("logistics.status", { logistics_id: Number(id), status: normalized });
+
         // If logistics completed, also mark the linked transaction as delivered
         if (normalized === "delivered") {
             try {
                 const details = await Logistics.getById(id);
                 if (details && details.transaction_id) {
                     await Transaction.updateDeliveryStatus(details.transaction_id, 'delivered');
+                    emitEvent("transaction.delivery_status", { transaction_id: details.transaction_id, status: 'delivered' });
                 }
             } catch (_) { /* best-effort; ignore */ }
         }

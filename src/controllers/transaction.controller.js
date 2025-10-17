@@ -1,4 +1,5 @@
 const Transaction = require("../models/transaction.model");
+const { emitEvent } = require("../utils/eventBus");
 
 // Transaction controller: handles the complex business logic of creating and managing transactions
 // This is where orders get converted into actual transactions with logistics
@@ -47,7 +48,8 @@ exports.create = async (req, res, next) => {
 			price: price || 0
 		});
 		
-		// Return success response with created transaction
+		// Emit real-time event and return success response
+		emitEvent("transaction.created", transaction);
 		return res.status(201).json({ 
 			message: "Transaction created successfully", 
 			transaction 
@@ -115,6 +117,7 @@ exports.updateDeliveryStatus = async (req, res, next) => {
 		
 		// Update the status in database
 		const updated = await Transaction.updateDeliveryStatus(id, status);
+		if (updated) emitEvent("transaction.delivery_status", { transaction_id: Number(id), status });
 		
 		if (!updated) {
 			return res.status(404).json({ message: "Transaction not found" });

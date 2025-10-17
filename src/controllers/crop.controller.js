@@ -1,4 +1,5 @@
 const Crop = require("../models/crop.model");
+const { emitEvent } = require("../utils/eventBus");
 
 exports.addCrop = async (req, res, next) => {
 	try {
@@ -7,6 +8,7 @@ exports.addCrop = async (req, res, next) => {
 			return res.status(400).json({ message: "farmer_id, crop_name, quantity, unit are required" });
 		}
 		const crop = await Crop.createCrop({ farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status, purpose });
+		emitEvent("crop.created", crop);
 		return res.status(201).json({ message: "Crop added successfully", crop });
 	} catch (err) {
 		next(err);

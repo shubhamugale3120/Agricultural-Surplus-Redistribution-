@@ -68,6 +68,12 @@
       return;
     }
     loadDeliveries();
+    Realtime.connect((evt) => {
+      if (!evt || !evt.type) return;
+      if (evt.type === 'logistics.status' || evt.type === 'logistics.created' || evt.type === 'transaction.delivery_status') {
+        loadDeliveries();
+      }
+    });
   });
 
   async function loadDeliveries() {

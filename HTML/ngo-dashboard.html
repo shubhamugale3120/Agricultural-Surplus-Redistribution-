@@ -83,6 +83,14 @@
     }
     loadCharityCrops();
     loadNgoTransactions();
+
+    Realtime.connect((evt) => {
+      if (!evt || !evt.type) return;
+      if (evt.type.startsWith('crop.') || evt.type.startsWith('transaction.') || evt.type === 'logistics.status') {
+        loadCharityCrops();
+        loadNgoTransactions();
+      }
+    });
   });
 
   async function loadCharityCrops() {
