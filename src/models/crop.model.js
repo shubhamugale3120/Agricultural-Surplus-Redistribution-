@@ -1,13 +1,13 @@
 const db = require("../config/db");
 
-// Normalize status to consistent casing in DB (store as 'Available'|'Matched'|'Expired')
+// Normalize status to consistent lowercase in DB ('available'|'matched'|'expired')
 function normalizeStatus(status) {
-    if (!status) return "Available";
+    if (!status) return "available";
     const s = String(status).toLowerCase();
-    if (s === "available") return "Available";
-    if (s === "matched" || s === "sold") return "Matched";
-    if (s === "expired") return "Expired";
-    return "Available";
+    if (s === "available") return "available";
+    if (s === "matched" || s === "sold") return "matched";
+    if (s === "expired") return "expired";
+    return "available";
 }
 
 exports.createCrop = async ({ farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status, purpose }) => {
@@ -39,7 +39,7 @@ exports.getById = async (crop_id) => {
 };
 
 exports.updateQuantityAndStatus = async (crop_id, newQuantity) => {
-    const status = newQuantity <= 0 ? "Matched" : "Available";
+    const status = newQuantity <= 0 ? "matched" : "available";
     const [r] = await db.query("UPDATE Crop SET quantity = ?, status = ? WHERE crop_id = ?", [newQuantity, status, crop_id]);
     return r.affectedRows > 0;
 };

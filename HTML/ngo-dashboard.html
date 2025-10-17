@@ -29,30 +29,36 @@
   </div>
 </header>
 
-<main class="container mx-auto p-6">
-  <section class="bg-white rounded-xl shadow p-8 max-w-5xl mx-auto">
-    <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Available Surplus for Charity</h2>
-    <p class="text-gray-600 mb-6">Browse available surplus crops that can be distributed to those in need.</p>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <h3 class="font-semibold text-lg mb-2">Charity Crops</h3>
-        <p class="text-gray-600">View crops marked for charity distribution</p>
-        <button class="btn-primary px-4 py-2 rounded text-white mt-3">View Charity Crops</button>
-      </div>
-      
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <h3 class="font-semibold text-lg mb-2">Request Surplus</h3>
-        <p class="text-gray-600">Request surplus crops for your organization</p>
-        <button class="btn-primary px-4 py-2 rounded text-white mt-3">Make Request</button>
-      </div>
-      
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <h3 class="font-semibold text-lg mb-2">Distribution History</h3>
-        <p class="text-gray-600">Track your organization's distribution records</p>
-        <button class="btn-primary px-4 py-2 rounded text-white mt-3">View History</button>
-      </div>
-    </div>
+<main class="container mx-auto p-6 space-y-12">
+  <section class="bg-white rounded-xl shadow p-8 max-w-6xl mx-auto">
+    <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Charity Crops</h2>
+    <p class="text-gray-600 mb-4">Crops marked for charity. Requesting will create a transaction for your NGO.</p>
+    <table class="w-full table-auto border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-[color:var(--brand-2,#2e5a3d)] text-white">
+          <th class="border px-4 py-2">Crop</th>
+          <th class="border px-4 py-2">Qty</th>
+          <th class="border px-4 py-2">Expiry</th>
+          <th class="border px-4 py-2">Action</th>
+        </tr>
+      </thead>
+      <tbody id="charityTableBody"></tbody>
+    </table>
+  </section>
+
+  <section class="bg-white rounded-xl shadow p-8 max-w-6xl mx-auto">
+    <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Your Charity Transactions</h2>
+    <table class="w-full table-auto border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-[color:var(--brand-2,#2e5a3d)] text-white">
+          <th class="border px-4 py-2">Crop</th>
+          <th class="border px-4 py-2">Type</th>
+          <th class="border px-4 py-2">Status</th>
+          <th class="border px-4 py-2">Date</th>
+        </tr>
+      </thead>
+      <tbody id="ngoTxTableBody"></tbody>
+    </table>
   </section>
 </main>
 
@@ -75,7 +81,82 @@
       window.location.href = 'login.html';
       return;
     }
+    loadCharityCrops();
+    loadNgoTransactions();
   });
+
+  async function loadCharityCrops() {
+    try {
+      const rows = await API.Crop.getAvailable();
+      const charity = rows.filter(r => (r.purpose || '').toLowerCase() === 'charity');
+      const tbody = document.getElementById('charityTableBody');
+      tbody.innerHTML = '';
+      if (charity.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">No charity crops available</td></tr>';
+        return;
+      }
+      charity.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border px-4 py-2">${c.crop_name}</td>
+          <td class="border px-4 py-2">${parseFloat(c.quantity).toFixed(2)} ${c.unit}</td>
+          <td class="border px-4 py-2">${Utils.formatDate(c.expiry_date)}</td>
+          <td class="border px-4 py-2 text-center">
+            <button class="btn-primary px-3 py-2 rounded text-white" onclick="requestCrop(${c.crop_id}, ${c.farmer_id})">Request</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      Utils.showError(e.message);
+    }
+  }
+
+  async function requestCrop(cropId, farmerId) {
+    try {
+      // For demo, pick a default seller id 1; in real app you would select
+      const sellerId = 1;
+      const tx = await API.Transaction.create({
+        crop_id: cropId,
+        farmer_id: farmerId,
+        ngo_id: getCurrentNgoId(),
+        seller_id: sellerId,
+        transaction_type: 'charity',
+        price: 0
+      });
+      Utils.showSuccess('Request created');
+      loadNgoTransactions();
+    } catch (e) {
+      Utils.showError(e.message);
+    }
+  }
+
+  async function loadNgoTransactions() {
+    try {
+      const all = await API.Transaction.getByType('charity');
+      const mine = all.filter(t => t.ngo_id === getCurrentNgoId());
+      const tbody = document.getElementById('ngoTxTableBody');
+      tbody.innerHTML = '';
+      if (mine.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">No transactions</td></tr>';
+        return;
+      }
+      mine.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border px-4 py-2">${t.crop_name || ''}</td>
+          <td class="border px-4 py-2">${t.transaction_type}</td>
+          <td class="border px-4 py-2">${t.delivery_status}</td>
+          <td class="border px-4 py-2">${Utils.formatDate(t.date)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      Utils.showError(e.message);
+    }
+  }
+
+  function getCurrentNgoId() { return 1; }
 
   // Logout function
   function logout() {
