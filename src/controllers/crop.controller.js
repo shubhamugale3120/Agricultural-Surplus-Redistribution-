@@ -3,11 +3,11 @@ const { emitEvent } = require("../utils/eventBus");
 
 exports.addCrop = async (req, res, next) => {
 	try {
-		const { farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status, purpose } = req.body;
+		const { farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status, purpose, price_per_unit } = req.body;
 		if (!farmer_id || !crop_name || !quantity || !unit) {
 			return res.status(400).json({ message: "farmer_id, crop_name, quantity, unit are required" });
 		}
-		const crop = await Crop.createCrop({ farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status, purpose });
+		const crop = await Crop.createCrop({ farmer_id, crop_name, quantity, unit, harvest_date, expiry_date, status, purpose, price_per_unit });
 		emitEvent("crop.created", crop);
 		return res.status(201).json({ message: "Crop added successfully", crop });
 	} catch (err) {
@@ -41,6 +41,29 @@ exports.updateCropStatus = async (req, res, next) => {
 		const ok = await Crop.updateStatus(id, status);
 		if (!ok) return res.status(404).json({ message: "Crop not found" });
 		return res.json({ message: "Status updated" });
+	} catch (err) {
+		next(err);
+	}
+};
+
+exports.updateCropPrice = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const { price_per_unit } = req.body;
+		
+		if (price_per_unit === undefined || price_per_unit === null) {
+			return res.status(400).json({ message: "price_per_unit is required" });
+		}
+		
+		if (price_per_unit < 0) {
+			return res.status(400).json({ message: "Price cannot be negative" });
+		}
+		
+		const ok = await Crop.updatePrice(id, price_per_unit);
+		if (!ok) return res.status(404).json({ message: "Crop not found" });
+		
+		emitEvent("crop.price_updated", { crop_id: id, price_per_unit });
+		return res.json({ message: "Price updated successfully" });
 	} catch (err) {
 		next(err);
 	}

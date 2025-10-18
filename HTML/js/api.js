@@ -83,6 +83,14 @@ const CropAPI = {
       method: 'PUT',
       body: JSON.stringify({ status })
     });
+  },
+
+  // Update crop price
+  updatePrice: async (cropId, priceData) => {
+    return apiRequest(`/crops/${cropId}/price`, {
+      method: 'PUT',
+      body: JSON.stringify(priceData)
+    });
   }
 };
 

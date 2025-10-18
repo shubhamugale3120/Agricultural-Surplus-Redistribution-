@@ -16,6 +16,13 @@
     .btn-primary:hover {
       background-color: #2e5a3d;
     }
+    .modal-bg {
+      background: rgba(44, 44, 44, 0.5);
+      position: fixed;
+      top:0; left:0; right:0; bottom:0;
+      display:flex; align-items:center; justify-content:center;
+      z-index:9999;
+    }
   </style>
 </head>
 <body>
@@ -61,6 +68,8 @@
         <option value="Charity">Charity</option>
         <option value="Commercial">Commercial</option>
       </select>
+      <input type="number" id="pricePerUnit" placeholder="Price per unit (₹)" min="0" step="0.01"
+        class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[color:var(--brand,#1e3d2b)]" />
       <select id="status" required
         class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[color:var(--brand,#1e3d2b)]">
         <option value="Available">Available</option>
@@ -81,10 +90,12 @@
           <th class="border border-gray-300 px-4 py-2">Crop Name</th>
           <th class="border border-gray-300 px-4 py-2">Quantity</th>
           <th class="border border-gray-300 px-4 py-2">Unit</th>
+          <th class="border border-gray-300 px-4 py-2">Price/Unit</th>
           <th class="border border-gray-300 px-4 py-2">Harvest Date</th>
           <th class="border border-gray-300 px-4 py-2">Expiry Date</th>
           <th class="border border-gray-300 px-4 py-2">Purpose</th>
           <th class="border border-gray-300 px-4 py-2">Status</th>
+          <th class="border border-gray-300 px-4 py-2">Actions</th>
         </tr>
       </thead>
       <tbody id="surplusTableBody">
@@ -110,6 +121,23 @@
     </table>
   </section>
 </main>
+
+  <!-- Price Update Modal -->
+  <div id="priceModal" class="modal-bg hidden">
+    <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md relative">
+      <button onclick="closePriceModal()" class="absolute top-2 right-3 text-black text-2xl">&times;</button>
+      <h2 class="text-xl font-semibold mb-4 text-[color:var(--brand,#1e3d2b)]">Set Crop Price</h2>
+      <form id="priceForm" onsubmit="updateCropPrice(event)" class="space-y-4">
+        <input id="priceModalCropName" type="text" readonly class="w-full rounded-md border border-gray-300 px-4 py-2 bg-gray-100"/>
+        <input id="priceModalCropId" type="hidden" />
+        <label>Price per unit (₹):
+          <input type="number" id="newPricePerUnit" min="0" step="0.01" required
+            class="w-full rounded-md border border-gray-300 px-4 py-2" />
+        </label>
+        <button type="submit" class="btn-primary w-full py-3 rounded-xl text-white font-semibold hover:opacity-90 transition">Update Price</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Include API client -->
   <script src="js/api.js"></script>
@@ -174,6 +202,7 @@
     const harvestDate = document.getElementById('harvestDate').value;
     const expiryDate = document.getElementById('expiryDate').value;
     const purpose = document.getElementById('purpose').value;
+    const pricePerUnit = document.getElementById('pricePerUnit').value;
     const status = document.getElementById('status').value;
     
     if (!cropName || !quantity || !unit || !harvestDate || !expiryDate || !purpose || !status) {
@@ -207,6 +236,7 @@
         harvest_date: harvestDate,
         expiry_date: expiryDate,
         purpose: purpose,
+        price_per_unit: pricePerUnit ? parseFloat(pricePerUnit) : null,
         status: status
       };
 
@@ -234,7 +264,7 @@
     tbody.innerHTML = '';
     
     if (crops.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-gray-500">No crops uploaded yet</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-gray-500">No crops uploaded yet</td></tr>';
       return;
     }
     
@@ -244,6 +274,9 @@
         <td class="border border-gray-300 px-4 py-2">${crop.crop_name}</td>
         <td class="border border-gray-300 px-4 py-2">${parseFloat(crop.quantity).toFixed(2)}</td>
         <td class="border border-gray-300 px-4 py-2">${crop.unit}</td>
+        <td class="border border-gray-300 px-4 py-2">
+          ${crop.price_per_unit ? `₹${parseFloat(crop.price_per_unit).toFixed(2)}` : 'Not set'}
+        </td>
         <td class="border border-gray-300 px-4 py-2">${Utils.formatDate(crop.harvest_date)}</td>
         <td class="border border-gray-300 px-4 py-2">${Utils.formatDate(crop.expiry_date)}</td>
         <td class="border border-gray-300 px-4 py-2">${crop.purpose || 'N/A'}</td>
@@ -253,6 +286,11 @@
             crop.status === 'Matched' ? 'bg-yellow-100 text-yellow-800' :
             'bg-red-100 text-red-800'
           }">${crop.status}</span>
+        </td>
+        <td class="border border-gray-300 px-4 py-2">
+          <button class="btn-primary px-3 py-1 rounded text-white text-sm" onclick="openPriceModal(${crop.crop_id}, '${crop.crop_name}', ${crop.price_per_unit || 0})">
+            Set Price
+          </button>
         </td>
       `;
       tbody.appendChild(row);
@@ -298,6 +336,54 @@
       loadFarmerCharityRequests();
     } catch (e) {
       Utils.showError(e.message);
+    }
+  }
+
+  // Price modal functions
+  function openPriceModal(cropId, cropName, currentPrice) {
+    document.getElementById('priceModal').classList.remove('hidden');
+    document.getElementById('priceModalCropName').value = cropName;
+    document.getElementById('priceModalCropId').value = cropId;
+    document.getElementById('newPricePerUnit').value = currentPrice || '';
+  }
+
+  function closePriceModal() {
+    document.getElementById('priceModal').classList.add('hidden');
+  }
+
+  async function updateCropPrice(event) {
+    event.preventDefault();
+    const cropId = parseInt(document.getElementById('priceModalCropId').value);
+    const newPrice = parseFloat(document.getElementById('newPricePerUnit').value);
+    
+    if (newPrice < 0) {
+      Utils.showError('Price cannot be negative.');
+      return;
+    }
+
+    try {
+      // Show loading state
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Updating...';
+      submitBtn.disabled = true;
+
+      // Call API to update price
+      await API.Crop.updatePrice(cropId, { price_per_unit: newPrice });
+      
+      Utils.showSuccess('Price updated successfully!');
+      closePriceModal();
+      
+      // Reload the crops table
+      loadFarmerCrops();
+      
+    } catch (error) {
+      Utils.showError(`Failed to update price: ${error.message}`);
+    } finally {
+      // Reset button state
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      submitBtn.textContent = 'Update Price';
+      submitBtn.disabled = false;
     }
   }
 

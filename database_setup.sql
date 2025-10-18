@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS `crops` (
   `unit` VARCHAR(50) NOT NULL,
   `harvest_date` DATE,
   `expiry_date` DATE,
+  `price_per_unit` DECIMAL(10,2) DEFAULT NULL,
   `status` ENUM('Available', 'Matched', 'Expired') DEFAULT 'Available',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -132,17 +133,17 @@ INSERT INTO `farmers` (`name`, `phone`, `location`, `email`) VALUES
 ('Vikram Patel', '+91-9876543214', 'Gujarat, India', 'vikram.patel@email.com');
 
 -- Insert test crops
-INSERT INTO `crops` (`farmer_id`, `crop_name`, `quantity`, `unit`, `harvest_date`, `expiry_date`, `status`) VALUES
-(1, 'Tomato', 200.50, 'kg', '2024-01-15', '2024-02-15', 'Available'),
-(1, 'Potato', 500.00, 'kg', '2024-01-10', '2024-03-10', 'Available'),
-(2, 'Onion', 300.75, 'kg', '2024-01-12', '2024-02-12', 'Available'),
-(2, 'Carrot', 150.25, 'kg', '2024-01-08', '2024-02-08', 'Available'),
-(3, 'Wheat', 1000.00, 'kg', '2024-01-05', '2024-06-05', 'Available'),
-(3, 'Rice', 800.00, 'kg', '2024-01-03', '2024-12-03', 'Available'),
-(4, 'Cauliflower', 100.00, 'kg', '2024-01-14', '2024-02-14', 'Available'),
-(4, 'Spinach', 75.50, 'kg', '2024-01-16', '2024-01-26', 'Available'),
-(5, 'Mango', 250.00, 'kg', '2024-01-01', '2024-01-31', 'Available'),
-(5, 'Banana', 400.00, 'kg', '2024-01-02', '2024-01-22', 'Available');
+INSERT INTO `crops` (`farmer_id`, `crop_name`, `quantity`, `unit`, `harvest_date`, `expiry_date`, `price_per_unit`, `status`) VALUES
+(1, 'Tomato', 200.50, 'kg', '2024-01-15', '2024-02-15', 25.00, 'Available'),
+(1, 'Potato', 500.00, 'kg', '2024-01-10', '2024-03-10', 15.00, 'Available'),
+(2, 'Onion', 300.75, 'kg', '2024-01-12', '2024-02-12', 20.00, 'Available'),
+(2, 'Carrot', 150.25, 'kg', '2024-01-08', '2024-02-08', 30.00, 'Available'),
+(3, 'Wheat', 1000.00, 'kg', '2024-01-05', '2024-06-05', 35.00, 'Available'),
+(3, 'Rice', 800.00, 'kg', '2024-01-03', '2024-12-03', 40.00, 'Available'),
+(4, 'Cauliflower', 100.00, 'kg', '2024-01-14', '2024-02-14', 18.00, 'Available'),
+(4, 'Spinach', 75.50, 'kg', '2024-01-16', '2024-01-26', 12.00, 'Available'),
+(5, 'Mango', 250.00, 'kg', '2024-01-01', '2024-01-31', 50.00, 'Available'),
+(5, 'Banana', 400.00, 'kg', '2024-01-02', '2024-01-22', 22.00, 'Available');
 
 -- Insert test buyers
 INSERT INTO `buyers` (`name`, `phone`, `location`, `email`, `buyer_type`) VALUES

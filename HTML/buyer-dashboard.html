@@ -46,7 +46,10 @@
       <thead>
         <tr class="bg-[color:var(--brand-2,#2e5a3d)] text-white">
           <th class="border px-4 py-2">Crop Name</th>
-          <th class="border px-4 py-2">Quantity (kg)</th>
+          <th class="border px-4 py-2">Quantity</th>
+          <th class="border px-4 py-2">Price/Unit</th>
+          <th class="border px-4 py-2">Farmer</th>
+          <th class="border px-4 py-2">Contact</th>
           <th class="border px-4 py-2">Expiry Date</th>
           <th class="border px-4 py-2">Purpose</th>
           <th class="border px-4 py-2 text-center">Order</th>
@@ -65,6 +68,9 @@
         <input id="modalCropName" type="text" readonly class="w-full rounded-md border border-gray-300 px-4 py-2 bg-gray-100"/>
         <input id="modalCropId" type="hidden" />
         <input id="modalAvailableQty" type="hidden" />
+        <div class="text-sm text-gray-600">
+          <strong>Price:</strong> <span id="modalPriceDisplay">Price not set</span>
+        </div>
         <label>Quantity (kg):
           <input type="number" id="orderQuantity" min="0.01" step="0.01" required
             class="w-full rounded-md border border-gray-300 px-4 py-2" />
@@ -152,7 +158,7 @@
     tbody.innerHTML = '';
     
     if (data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No available crops</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">No available crops</td></tr>';
       return;
     }
     
@@ -161,10 +167,17 @@
       row.innerHTML = `
         <td class="border px-4 py-2">${item.crop_name}</td>
         <td class="border px-4 py-2">${parseFloat(item.quantity).toFixed(2)} ${item.unit}</td>
+        <td class="border px-4 py-2">
+          ${item.price_per_unit ? `₹${parseFloat(item.price_per_unit).toFixed(2)}` : 'Price not set'}
+        </td>
+        <td class="border px-4 py-2">${item.farmer_name || 'Unknown'}</td>
+        <td class="border px-4 py-2">
+          ${item.farmer_phone ? `<a href="tel:${item.farmer_phone}" class="text-blue-600 hover:underline">${item.farmer_phone}</a>` : 'No contact'}
+        </td>
         <td class="border px-4 py-2">${Utils.formatDate(item.expiry_date)}</td>
         <td class="border px-4 py-2">${item.purpose || 'N/A'}</td>
         <td class="border px-4 py-2 text-center">
-          <button class="btn-primary px-4 py-2 rounded text-white" onclick="openModal(${item.crop_id}, '${item.crop_name}', ${item.quantity})">Order</button>
+          <button class="btn-primary px-4 py-2 rounded text-white" onclick="openModal(${item.crop_id}, '${item.crop_name}', ${item.quantity}, ${item.price_per_unit || 0})">Order</button>
         </td>
       `;
       tbody.appendChild(row);
@@ -177,13 +190,19 @@
     renderSurplusTable(filtered);
   }
 
-  function openModal(cropId, cropName, availableQty) {
+  function openModal(cropId, cropName, availableQty, pricePerUnit) {
     document.getElementById('orderModal').classList.remove('hidden');
     document.getElementById('modalCropName').value = cropName;
     document.getElementById('modalCropId').value = cropId;
     document.getElementById('modalAvailableQty').value = availableQty;
     document.getElementById('orderQuantity').max = availableQty;
     document.getElementById('orderQuantity').value = '';
+    
+    // Update price display in modal
+    const priceDisplay = document.getElementById('modalPriceDisplay');
+    if (priceDisplay) {
+      priceDisplay.textContent = pricePerUnit > 0 ? `₹${parseFloat(pricePerUnit).toFixed(2)} per unit` : 'Price not set';
+    }
   }
 
   function closeModal() {
